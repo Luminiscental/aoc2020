@@ -11,9 +11,6 @@ pub fn parse(input: String) -> Vec<u32> {
 
 pub fn part1(input: &[u32]) -> u32 {
     for (idx1, num1) in input.iter().enumerate() {
-        if *num1 > 2020 {
-            continue;
-        }
         for num2 in input[0..=idx1].iter() {
             if num1 + num2 == 2020 {
                 return num1 * num2;
@@ -25,9 +22,6 @@ pub fn part1(input: &[u32]) -> u32 {
 
 pub fn part2(input: &[u32]) -> u32 {
     for (idx1, num1) in input.iter().enumerate() {
-        if *num1 > 2020 {
-            continue;
-        }
         for (idx2, num2) in input[0..=idx1].iter().enumerate() {
             if num1 + num2 > 2020 {
                 continue;
