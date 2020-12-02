@@ -1,4 +1,4 @@
-pub fn parse(input: String) -> Vec<u32> {
+pub fn parse(input: &str) -> Vec<u32> {
     input
         .lines()
         .filter(|line| !line.is_empty())
