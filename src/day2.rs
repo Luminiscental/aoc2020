@@ -1,6 +1,8 @@
+use crate::day::Day;
 use itertools::Itertools;
 
-#[derive(Debug)]
+type Password<'a> = &'a [u8];
+
 pub struct Policy {
     min: usize,
     max: usize,
@@ -18,35 +20,43 @@ impl Policy {
     }
 }
 
-pub fn parse(input: &str) -> Vec<(Policy, &[u8])> {
-    input
-        .lines()
-        .filter(|line| !line.is_empty())
-        .map(|line| {
-            let (min, max, letter, password) = line
-                .split(&['-', ' ', ':'][..])
-                .filter(|s| !s.is_empty())
-                .next_tuple()
-                .expect("failed to parse line");
-            let min = min.parse::<usize>().expect("failed to parse min");
-            let max = max.parse::<usize>().expect("failed to parse max");
-            assert!(letter.len() == 1, "expected single letter");
-            let letter = letter.as_bytes()[0];
-            (Policy { min, max, letter }, password.as_bytes())
-        })
-        .collect()
-}
+pub struct Day2 {}
 
-pub fn part1<'a>(input: &[(Policy, &'a [u8])]) -> usize {
-    input
-        .iter()
-        .filter(|pair| pair.0.validate_sled(pair.1))
-        .count()
-}
+impl<'a> Day<'a> for Day2 {
+    type Input = Vec<(Policy, Password<'a>)>;
+    type Output1 = usize;
+    type Output2 = usize;
 
-pub fn part2<'a>(input: &[(Policy, &'a [u8])]) -> usize {
-    input
-        .iter()
-        .filter(|pair| pair.0.validate_toboggan(pair.1))
-        .count()
+    fn parse(input: &'a str) -> Self::Input {
+        input
+            .lines()
+            .filter(|line| !line.is_empty())
+            .map(|line| {
+                let (min, max, letter, password) = line
+                    .split(&['-', ' ', ':'][..])
+                    .filter(|s| !s.is_empty())
+                    .next_tuple()
+                    .expect("failed to parse line");
+                let min = min.parse::<usize>().expect("failed to parse min");
+                let max = max.parse::<usize>().expect("failed to parse max");
+                assert!(letter.len() == 1, "expected single letter");
+                let letter = letter.as_bytes()[0];
+                (Policy { min, max, letter }, password.as_bytes())
+            })
+            .collect()
+    }
+
+    fn solve_part1(input: &Self::Input) -> Self::Output1 {
+        input
+            .iter()
+            .filter(|pair| pair.0.validate_sled(pair.1))
+            .count()
+    }
+
+    fn solve_part2(input: &Self::Input) -> Self::Output2 {
+        input
+            .iter()
+            .filter(|pair| pair.0.validate_toboggan(pair.1))
+            .count()
+    }
 }
