@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use bytecount;
 
 #[derive(Debug)]
 pub struct Policy {
@@ -9,16 +10,8 @@ pub struct Policy {
 
 impl Policy {
     fn validate_sled(&self, password: &[u8]) -> bool {
-        let mut count = 0;
-        for c in password.iter() {
-            if *c == self.letter {
-                if count == self.max {
-                    return false;
-                }
-                count += 1;
-            }
-        }
-        count >= self.min
+        let count = bytecount::count(password, self.letter);
+        self.min <= count && count <= self.max
     }
 
     fn validate_toboggan(&self, password: &[u8]) -> bool {
