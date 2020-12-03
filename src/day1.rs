@@ -7,6 +7,8 @@ impl<'a> Day<'a> for Day1 {
     type Output1 = u32;
     type Output2 = u32;
 
+    const INDEX: usize = 1;
+
     fn parse(input: &'a str) -> Self::Input {
         input
             .lines()

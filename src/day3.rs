@@ -39,6 +39,8 @@ impl<'a> Day<'a> for Day3 {
     type Output1 = usize;
     type Output2 = usize;
 
+    const INDEX: usize = 3;
+
     fn parse(raw_input: &'a str) -> Self::Input {
         Grid {
             rows: raw_input
