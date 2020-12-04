@@ -35,13 +35,14 @@ impl Grid {
 pub struct Day3 {}
 
 impl<'a> Day<'a> for Day3 {
-    type Input = Grid;
+    type Input1 = Grid;
+    type Input2 = Grid;
     type Output1 = usize;
     type Output2 = usize;
 
     const INDEX: usize = 3;
 
-    fn parse(raw_input: &'a str) -> Self::Input {
+    fn parse(raw_input: &'a str) -> Self::Input1 {
         Grid {
             rows: raw_input
                 .lines()
@@ -51,11 +52,12 @@ impl<'a> Day<'a> for Day3 {
         }
     }
 
-    fn solve_part1(input: &Self::Input) -> Self::Output1 {
-        input.count_trees(3, 1)
+    fn solve_part1(input: Self::Input1) -> (Self::Input2, Self::Output1) {
+        let count = input.count_trees(3, 1);
+        (input, count)
     }
 
-    fn solve_part2(input: &Self::Input) -> Self::Output2 {
+    fn solve_part2(input: Self::Input2) -> Self::Output2 {
         input.count_trees(1, 1)
             * input.count_trees(3, 1)
             * input.count_trees(5, 1)

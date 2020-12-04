@@ -1,15 +1,16 @@
 use std::{fmt, time::Instant};
 
 pub trait Day<'a> {
-    type Input;
+    type Input1;
+    type Input2;
     type Output1;
     type Output2;
 
     const INDEX: usize;
 
-    fn parse(raw_input: &'a str) -> Self::Input;
-    fn solve_part1(input: &Self::Input) -> Self::Output1;
-    fn solve_part2(input: &Self::Input) -> Self::Output2;
+    fn parse(raw_input: &'a str) -> Self::Input1;
+    fn solve_part1(input: Self::Input1) -> (Self::Input2, Self::Output1);
+    fn solve_part2(input: Self::Input2) -> Self::Output2;
 
     fn solve_and_print(raw_input: &'a str)
     where
@@ -18,9 +19,9 @@ pub trait Day<'a> {
     {
         let parsed_input = Self::parse(&raw_input);
         let time1 = Instant::now();
-        let part1_answer = Self::solve_part1(&parsed_input);
+        let (parsed_input, part1_answer) = Self::solve_part1(parsed_input);
         let time2 = Instant::now();
-        let part2_answer = Self::solve_part2(&parsed_input);
+        let part2_answer = Self::solve_part2(parsed_input);
         let time3 = Instant::now();
 
         println!();

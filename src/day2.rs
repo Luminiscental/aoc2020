@@ -23,13 +23,14 @@ impl Policy {
 pub struct Day2 {}
 
 impl<'a> Day<'a> for Day2 {
-    type Input = Vec<(Policy, Password<'a>)>;
+    type Input1 = Vec<(Policy, Password<'a>)>;
+    type Input2 = Vec<(Policy, Password<'a>)>;
     type Output1 = usize;
     type Output2 = usize;
 
     const INDEX: usize = 2;
 
-    fn parse(input: &'a str) -> Self::Input {
+    fn parse(input: &'a str) -> Self::Input1 {
         input
             .lines()
             .filter(|line| !line.is_empty())
@@ -48,14 +49,15 @@ impl<'a> Day<'a> for Day2 {
             .collect()
     }
 
-    fn solve_part1(input: &Self::Input) -> Self::Output1 {
-        input
+    fn solve_part1(input: Self::Input1) -> (Self::Input2, Self::Output1) {
+        let count = input
             .iter()
             .filter(|pair| pair.0.validate_sled(pair.1))
-            .count()
+            .count();
+        (input, count)
     }
 
-    fn solve_part2(input: &Self::Input) -> Self::Output2 {
+    fn solve_part2(input: Self::Input2) -> Self::Output2 {
         input
             .iter()
             .filter(|pair| pair.0.validate_toboggan(pair.1))
