@@ -91,17 +91,16 @@ impl<'a> Day<'a> for Day4 {
 
     fn parse(raw_input: &'a str) -> Self::Input1 {
         let mut passports = Vec::new();
-        let mut current_passport = Passport::new();
-        for line in raw_input.lines() {
-            if line.is_empty() {
-                passports.push(current_passport);
-                current_passport = Passport::new();
-            } else {
+        let lines: Vec<_> = raw_input.lines().collect();
+        for passport_lines in lines.split(|line| line.is_empty()) {
+            let mut passport = Passport::new();
+            for line in passport_lines {
                 for pair in line.split(' ') {
-                    let parts: Vec<_> = pair.split(':').collect();
-                    current_passport.fields.insert(parts[0], parts[1]);
+                    let (key, colon_value) = pair.split_at(3);
+                    passport.fields.insert(key, &colon_value[1..]);
                 }
             }
+            passports.push(passport);
         }
         passports
     }
