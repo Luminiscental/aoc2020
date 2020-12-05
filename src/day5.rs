@@ -47,13 +47,11 @@ impl<'a> Day<'a> for Day5 {
 
     fn solve_part2(mut input: Self::Input2) -> Self::Output2 {
         input.sort();
-        let mut last_id = input[0];
-        for id in input.iter().skip(1) {
-            if *id == last_id + 2 {
-                return id - 1;
-            }
-            last_id = *id;
-        }
-        panic!("no solution found");
+        let (left, _right) = input
+            .iter()
+            .zip(input.iter().skip(1))
+            .find(|pair| pair.1 - pair.0 == 2)
+            .unwrap();
+        left + 1
     }
 }
