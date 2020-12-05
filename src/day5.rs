@@ -3,23 +3,18 @@ use crate::day::Day;
 type Seat = usize;
 
 fn parse_seat(desc: &str) -> Seat {
-    let row: usize = desc[0..7]
-        .as_bytes()
-        .iter()
+    desc.chars()
+        .map(|c| match c {
+            'F' => 0,
+            'B' => 1,
+            'L' => 0,
+            'R' => 1,
+            _ => unreachable!(),
+        })
         .rev()
         .zip(0..)
-        .filter(|pair| *pair.0 == b'B')
-        .map(|pair| 1 << pair.1)
-        .sum();
-    let column: usize = desc[7..10]
-        .as_bytes()
-        .iter()
-        .rev()
-        .zip(0..)
-        .filter(|pair| *pair.0 == b'R')
-        .map(|pair| 1 << pair.1)
-        .sum();
-    8 * row + column
+        .map(|pair| pair.0 * (1 << pair.1))
+        .sum()
 }
 
 pub struct Day5 {}
