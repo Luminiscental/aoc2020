@@ -17,6 +17,7 @@ pub trait Day<'a> {
         Self::Output1: fmt::Display,
         Self::Output2: fmt::Display,
     {
+        let time0 = Instant::now();
         let parsed_input = Self::parse(&raw_input);
         let time1 = Instant::now();
         let (parsed_input, part1_answer) = Self::solve_part1(parsed_input);
@@ -26,6 +27,10 @@ pub trait Day<'a> {
 
         println!();
         println!("day{}:", Self::INDEX);
+        println!(
+            "  parsing: ... (elapsed {}ms)",
+            1000.0 * (time1 - time0).as_secs_f32()
+        );
         println!(
             "  part1: {} (elapsed {}ms)",
             part1_answer,
