@@ -40,30 +40,25 @@ impl<'a> Day<'a> for Day10 {
             match jolt_difference {
                 1 => one_count += 1,
                 3 => three_count += 1,
-                n => assert!(*n == 2, "invalid input data"),
+                _ => panic!("expected only 1 or 3 gaps"),
             }
         }
         (input, one_count * three_count)
     }
 
     fn solve_part2(input: Self::Input2) -> Self::Output2 {
-        fn count_combinations(xs: &[usize]) -> usize {
-            if xs.is_empty() {
-                1
-            } else {
-                let mut sum = 0;
-                let mut count = 0;
-                for i in 0..xs.len() {
-                    sum += xs[i];
-                    if sum <= 3 {
-                        count += count_combinations(&xs[i + 1..]);
-                    } else {
-                        break;
-                    }
-                }
-                count
+        let joltage_differences = input;
+        fn tribonacci(n: usize) -> usize {
+            match n {
+                0 => 1,
+                1 => 1,
+                2 => 2,
+                n => tribonacci(n - 1) + tribonacci(n - 2) + tribonacci(n - 3),
             }
         }
-        input.split(|&n| n == 3).map(count_combinations).product()
+        joltage_differences
+            .split(|&n| n == 3)
+            .map(|xs| tribonacci(xs.len()))
+            .product()
     }
 }
