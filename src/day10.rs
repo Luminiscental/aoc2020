@@ -40,7 +40,7 @@ impl<'a> Day<'a> for Day10 {
             match jolt_difference {
                 1 => one_count += 1,
                 3 => three_count += 1,
-                _ => panic!("expected only 1 or 3 gaps"),
+                _ => panic!("expected only gaps of 1 or 3 jolts"),
             }
         }
         (input, one_count * three_count)
