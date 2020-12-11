@@ -1,227 +1,66 @@
 use crate::day::Day;
 
-// Here be dragons
+const DIRECTIONS: &[(i32, i32)] = &[
+    (-1, -1),
+    (-1, 0),
+    (-1, 1),
+    (0, -1),
+    (0, 1),
+    (1, -1),
+    (1, 0),
+    (1, 1),
+];
 
-fn increment_seats1(seats: &mut Vec<Vec<char>>, scratchpad: &mut Vec<Vec<usize>>) -> bool {
-    for j in 0..seats[0].len() {
-        for i in 0..seats.len() {
-            match seats[i][j] {
-                '#' => {
-                    if i < seats.len() - 1 && j < seats[0].len() - 1 {
-                        scratchpad[i + 1][j + 1] += 1;
-                    }
-                    if j < seats[0].len() - 1 {
-                        scratchpad[i][j + 1] += 1;
-                    }
-                    if i < seats.len() - 1 {
-                        scratchpad[i + 1][j] += 1;
-                    }
-                    if i > 0 {
-                        scratchpad[i - 1][j] += 1;
-                    }
-                    if i > 0 && j < seats[0].len() - 1 {
-                        scratchpad[i - 1][j + 1] += 1;
-                    }
-                    if i > 0 && j > 0 {
-                        scratchpad[i - 1][j - 1] += 1;
-                    }
-                    if j > 0 {
-                        scratchpad[i][j - 1] += 1;
-                    }
-                    if i < seats.len() - 1 && j > 0 {
-                        scratchpad[i + 1][j - 1] += 1;
-                    }
-                }
-                'L' | '.' => (),
-                _ => panic!("unrecognized tile"),
-            }
-        }
-    }
-
-    let mut changed = false;
-    for j in 0..seats[0].len() {
-        for i in 0..seats.len() {
-            match seats[i][j] {
-                '#' => {
-                    if scratchpad[i][j] >= 4 {
-                        seats[i][j] = 'L';
-                        changed = true;
-                    }
-                }
-                'L' => {
-                    if scratchpad[i][j] == 0 {
-                        seats[i][j] = '#';
-                        changed = true;
-                    }
-                }
-                '.' => (),
-                _ => unreachable!(),
-            }
-            scratchpad[i][j] = 0;
-        }
-    }
-    changed
+fn in_range(i: i32, j: i32, ilen: usize, jlen: usize) -> bool {
+    i >= 0 && i < ilen as i32 && j >= 0 && j < jlen as i32
 }
 
-fn increment_seats2(seats: &mut Vec<Vec<char>>, scratchpad: &mut Vec<Vec<usize>>) -> bool {
-    // count left-right
-    for i in 0..seats.len() {
-        let mut last_j = None;
-        let mut last_empty = false;
-        for j in 0..seats[0].len() {
-            match seats[i][j] {
-                '#' => {
-                    if let Some(last_j) = last_j {
-                        scratchpad[i][last_j] += 1;
-                        if !last_empty {
-                            scratchpad[i][j] += 1;
+fn increment_seats(
+    seats: &mut Vec<Vec<char>>,
+    neighbour_counts: &mut Vec<Vec<usize>>,
+    crowded_threshold: usize,
+    extended_sight: bool,
+) -> bool {
+    for (i, neighbour_row) in neighbour_counts.iter_mut().enumerate() {
+        for (j, neighbour_count) in neighbour_row.iter_mut().enumerate() {
+            for (delta_i, delta_j) in DIRECTIONS.iter() {
+                let mut check_i = i as i32 + delta_i;
+                let mut check_j = j as i32 + delta_j;
+                while in_range(check_i, check_j, seats.len(), seats[0].len()) {
+                    match seats[check_i as usize][check_j as usize] {
+                        '#' => {
+                            *neighbour_count += 1;
+                            break;
                         }
-                    }
-                    last_j = Some(j);
-                    last_empty = false;
-                }
-                'L' => {
-                    if last_j.is_some() && !last_empty {
-                        scratchpad[i][j] += 1;
-                    }
-                    last_j = Some(j);
-                    last_empty = true;
-                }
-                '.' => (),
-                _ => unreachable!(),
-            }
-        }
-    }
-
-    // count up-down
-    for j in 0..seats[0].len() {
-        let mut last_i: Option<usize> = None;
-        let mut last_empty = false;
-        for i in 0..seats.len() {
-            match seats[i][j] {
-                '#' => {
-                    if let Some(last_i) = last_i {
-                        scratchpad[last_i][j] += 1;
-                        if !last_empty {
-                            scratchpad[i][j] += 1;
+                        '.' if extended_sight => {
+                            check_i += delta_i;
+                            check_j += delta_j;
+                            continue;
                         }
+                        '.' if !extended_sight => break,
+                        'L' => break,
+                        c => panic!("unrecognized character \"{}\"", c),
                     }
-                    last_i = Some(i);
-                    last_empty = false;
                 }
-                'L' => {
-                    if last_i.is_some() && !last_empty {
-                        scratchpad[i][j] += 1;
-                    }
-                    last_i = Some(i);
-                    last_empty = true;
-                }
-                '.' => (),
-                _ => unreachable!(),
-            }
-        }
-    }
-
-    // count positive diagonals
-    for n in 0..(seats[0].len() + seats.len() - 1) {
-        let i0 = if n < seats[0].len() {
-            0
-        } else {
-            n + 1 - seats[0].len()
-        };
-        let j0 = if n < seats[0].len() {
-            seats[0].len() - 1 - n
-        } else {
-            0
-        };
-        let length = usize::min(seats.len() - i0, seats[0].len() - j0);
-        let mut last_d: Option<usize> = None;
-        let mut last_empty = false;
-        for d in 0..length {
-            match seats[i0 + d][j0 + d] {
-                '#' => {
-                    if let Some(last_d) = last_d {
-                        scratchpad[i0 + last_d][j0 + last_d] += 1;
-                        if !last_empty {
-                            scratchpad[i0 + d][j0 + d] += 1;
-                        }
-                    }
-                    last_d = Some(d);
-                    last_empty = false;
-                }
-                'L' => {
-                    if last_d.is_some() && !last_empty {
-                        scratchpad[i0 + d][j0 + d] += 1;
-                    }
-                    last_d = Some(d);
-                    last_empty = true;
-                }
-                '.' => (),
-                _ => unreachable!(),
-            }
-        }
-    }
-
-    // count negative diagonals
-    for n in 0..(seats[0].len() + seats.len() - 1) {
-        let i0 = if n < seats[0].len() {
-            0
-        } else {
-            n + 1 - seats[0].len()
-        };
-        let j0 = if n < seats[0].len() {
-            n
-        } else {
-            seats[0].len() - 1
-        };
-        let length = usize::min(seats.len() - i0, j0 + 1);
-        let mut last_d: Option<usize> = None;
-        let mut last_empty = false;
-        for d in 0..length {
-            match seats[i0 + d][j0 - d] {
-                '#' => {
-                    if let Some(last_d) = last_d {
-                        scratchpad[i0 + last_d][j0 - last_d] += 1;
-                        if !last_empty {
-                            scratchpad[i0 + d][j0 - d] += 1;
-                        }
-                    }
-                    last_d = Some(d);
-                    last_empty = false;
-                }
-                'L' => {
-                    if last_d.is_some() && !last_empty {
-                        scratchpad[i0 + d][j0 - d] += 1;
-                    }
-                    last_d = Some(d);
-                    last_empty = true;
-                }
-                '.' => (),
-                _ => unreachable!(),
             }
         }
     }
 
     let mut changed = false;
-    for j in 0..seats[0].len() {
-        for i in 0..seats.len() {
-            match seats[i][j] {
-                '#' => {
-                    if scratchpad[i][j] >= 5 {
-                        seats[i][j] = 'L';
-                        changed = true;
-                    }
+    for (seat_row, neighbour_row) in seats.iter_mut().zip(neighbour_counts.iter_mut()) {
+        for (seat, neighbour_count) in seat_row.iter_mut().zip(neighbour_row.iter_mut()) {
+            match seat {
+                '#' if *neighbour_count >= crowded_threshold => {
+                    *seat = 'L';
+                    changed = true;
                 }
-                'L' => {
-                    if scratchpad[i][j] == 0 {
-                        seats[i][j] = '#';
-                        changed = true;
-                    }
+                'L' if *neighbour_count == 0 => {
+                    *seat = '#';
+                    changed = true;
                 }
-                '.' => (),
-                _ => unreachable!(),
+                _ => (),
             }
-            scratchpad[i][j] = 0;
+            *neighbour_count = 0;
         }
     }
     changed
@@ -247,11 +86,11 @@ impl<'a> Day<'a> for Day11 {
 
     fn solve_part1(input: Self::Input1) -> (Self::Input2, Self::Output1) {
         let mut seats = input.clone();
-        let mut scratchpad = seats
+        let mut neighbour_counts = seats
             .iter()
             .map(|row| row.iter().map(|_| 0).collect())
             .collect();
-        while increment_seats1(&mut seats, &mut scratchpad) {}
+        while increment_seats(&mut seats, &mut neighbour_counts, 4, false) {}
         let vacant = seats
             .iter()
             .map(|row| row.iter().filter(|&&c| c == '#').count())
@@ -259,13 +98,14 @@ impl<'a> Day<'a> for Day11 {
         (input, vacant)
     }
 
-    fn solve_part2(mut input: Self::Input2) -> Self::Output2 {
-        let mut scratchpad = input
+    fn solve_part2(input: Self::Input2) -> Self::Output2 {
+        let mut seats = input;
+        let mut neighbour_counts = seats
             .iter()
             .map(|row| row.iter().map(|_| 0).collect())
             .collect();
-        while increment_seats2(&mut input, &mut scratchpad) {}
-        input
+        while increment_seats(&mut seats, &mut neighbour_counts, 5, true) {}
+        seats
             .iter()
             .map(|row| row.iter().filter(|&&c| c == '#').count())
             .sum()
