@@ -1,5 +1,7 @@
 use crate::day::Day;
 
+// Here be dragons
+
 fn increment_seats1(seats: &mut Vec<Vec<char>>, scratchpad: &mut Vec<Vec<usize>>) -> bool {
     for j in 0..seats[0].len() {
         for i in 0..seats.len() {
