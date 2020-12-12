@@ -43,6 +43,36 @@ fn rotate(point_x: &mut i32, point_y: &mut i32, angle: i32) {
 
 pub struct Day12 {}
 
+fn final_ship_distance(
+    actions: &[(Direction, i32)],
+    mut waypoint_x: i32,
+    mut waypoint_y: i32,
+    move_waypoint: bool,
+) -> i32 {
+    let (mut offset_x, mut offset_y) = (0, 0);
+    for (dir, dist) in actions.iter() {
+        match dir {
+            Direction::North if move_waypoint => waypoint_y += dist,
+            Direction::East if move_waypoint => waypoint_x += dist,
+            Direction::South if move_waypoint => waypoint_y -= dist,
+            Direction::West if move_waypoint => waypoint_x -= dist,
+
+            Direction::North => offset_y += dist,
+            Direction::East => offset_x += dist,
+            Direction::South => offset_y -= dist,
+            Direction::West => offset_x -= dist,
+
+            Direction::Forward => {
+                offset_x += waypoint_x * dist;
+                offset_y += waypoint_y * dist;
+            }
+            Direction::Left => rotate(&mut waypoint_x, &mut waypoint_y, *dist),
+            Direction::Right => rotate(&mut waypoint_x, &mut waypoint_y, 360 - dist),
+        }
+    }
+    offset_x.abs() + offset_y.abs()
+}
+
 impl<'a> Day<'a> for Day12 {
     type Input1 = Vec<(Direction, i32)>;
     type Input2 = Vec<(Direction, i32)>;
@@ -65,53 +95,11 @@ impl<'a> Day<'a> for Day12 {
     }
 
     fn solve_part1(input: Self::Input1) -> (Self::Input2, Self::Output1) {
-        let (mut facing_x, mut facing_y) = (1, 0);
-        let (mut offset_x, mut offset_y) = (0, 0);
-        for (dir, dist) in input.iter() {
-            match dir {
-                Direction::North => offset_y += dist,
-                Direction::East => offset_x += dist,
-                Direction::South => offset_y -= dist,
-                Direction::West => offset_x -= dist,
-                Direction::Forward => {
-                    offset_x += facing_x * dist;
-                    offset_y += facing_y * dist;
-                }
-                Direction::Left => {
-                    rotate(&mut facing_x, &mut facing_y, *dist);
-                }
-                Direction::Right => {
-                    rotate(&mut facing_x, &mut facing_y, 360 - dist);
-                }
-            }
-        }
-        (input, offset_x.abs() + offset_y.abs())
+        let dist = final_ship_distance(&input, 1, 0, false);
+        (input, dist)
     }
 
     fn solve_part2(input: Self::Input2) -> Self::Output2 {
-        let (mut facing_x, mut facing_y) = (1, 0);
-        let (mut waypoint_x, mut waypoint_y) = (10, 1);
-        let (mut offset_x, mut offset_y) = (0, 0);
-        for (dir, dist) in input.iter() {
-            match dir {
-                Direction::North => waypoint_y += dist,
-                Direction::East => waypoint_x += dist,
-                Direction::South => waypoint_y -= dist,
-                Direction::West => waypoint_x -= dist,
-                Direction::Forward => {
-                    offset_x += waypoint_x * dist;
-                    offset_y += waypoint_y * dist;
-                }
-                Direction::Left => {
-                    rotate(&mut facing_x, &mut facing_y, *dist);
-                    rotate(&mut waypoint_x, &mut waypoint_y, *dist);
-                }
-                Direction::Right => {
-                    rotate(&mut facing_x, &mut facing_y, 360 - dist);
-                    rotate(&mut waypoint_x, &mut waypoint_y, 360 - dist);
-                }
-            }
-        }
-        offset_x.abs() + offset_y.abs()
+        final_ship_distance(&input, 10, 1, true)
     }
 }
