@@ -31,11 +31,8 @@ impl FromStr for Direction {
 fn rotate(point_x: &mut i32, point_y: &mut i32, angle: i32) {
     let (cos, sin) = match angle {
         90 => (0, 1),
-        -90 => (0, -1),
         180 => (-1, 0),
-        -180 => (-1, 0),
         270 => (0, -1),
-        -270 => (0, 1),
         _ => unreachable!(),
     };
     let new_facing_x = cos * *point_x - sin * *point_y;
@@ -84,7 +81,7 @@ impl<'a> Day<'a> for Day12 {
                     rotate(&mut facing_x, &mut facing_y, *dist);
                 }
                 Direction::Right => {
-                    rotate(&mut facing_x, &mut facing_y, -dist);
+                    rotate(&mut facing_x, &mut facing_y, 360 - dist);
                 }
             }
         }
@@ -110,8 +107,8 @@ impl<'a> Day<'a> for Day12 {
                     rotate(&mut waypoint_x, &mut waypoint_y, *dist);
                 }
                 Direction::Right => {
-                    rotate(&mut facing_x, &mut facing_y, -dist);
-                    rotate(&mut waypoint_x, &mut waypoint_y, -dist);
+                    rotate(&mut facing_x, &mut facing_y, 360 - dist);
+                    rotate(&mut waypoint_x, &mut waypoint_y, 360 - dist);
                 }
             }
         }
