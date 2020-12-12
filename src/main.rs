@@ -4,13 +4,13 @@ use std::{
 };
 
 mod day;
-mod day11;
+mod day12;
 
 use day::Day;
-use day11::Day11;
+use day12::Day12;
 
 fn main() -> io::Result<()> {
-    type CurrentDay = Day11;
+    type CurrentDay = Day12;
 
     let mut input_file = File::open(format!("res/day{}.in", CurrentDay::INDEX))?;
     let mut input_string = String::new();
