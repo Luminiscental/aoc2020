@@ -3,6 +3,7 @@ use std::{
     io::{self, Read},
 };
 
+mod util;
 mod day;
 mod day13;
 
