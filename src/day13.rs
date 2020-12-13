@@ -98,13 +98,11 @@ impl<'a> Day<'a> for Day13 {
     }
 
     fn solve_part2(input: Self::Input2) -> Self::Output2 {
-        println!("usize max = {}", usize::MAX);
         let mut congruences = input.iter().enumerate().filter_map(|pair| match pair {
             (_, None) => None,
             (idx, Some(n)) => Some((negmod(idx, *n), *n)),
         });
         let first = congruences.next().unwrap();
-        println!("starting with x = {} (mod {})", first.0, first.1);
         let (r, _) = congruences.fold(first, solve_2_congruences);
         r
     }
