@@ -21,24 +21,11 @@ impl<'a> Bitmask<'a> {
     fn apply_v2(&self, value: usize) -> Vec<usize> {
         let mut values = vec![0];
         for (idx, bit) in self.bits.chars().rev().enumerate() {
-            match bit {
-                '0' => {
-                    let addition = value & (1 << idx);
-                    for value in values.iter_mut() {
-                        *value += addition;
-                    }
-                }
-                '1' => {
-                    let addition = 1 << idx;
-                    for value in values.iter_mut() {
-                        *value += addition;
-                    }
-                }
-                _ => {
-                    let addition = 1 << idx;
-                    for i in 0..values.len() {
-                        values.push(values[i] + addition);
-                    }
+            if bit == '1' || (bit == '0' && (value & (1 << idx) != 0)) {
+                values.iter_mut().for_each(|v| *v += 1 << idx);
+            } else if bit == 'X' {
+                for i in 0..values.len() {
+                    values.push(values[i] + (1 << idx));
                 }
             }
         }
