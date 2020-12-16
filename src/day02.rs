@@ -20,9 +20,9 @@ impl Policy {
     }
 }
 
-pub struct Day2 {}
+pub struct Day02 {}
 
-impl<'a> Day<'a> for Day2 {
+impl<'a> Day<'a> for Day02 {
     type Input1 = Vec<(Policy, Password<'a>)>;
     type Input2 = Vec<(Policy, Password<'a>)>;
     type Output1 = usize;

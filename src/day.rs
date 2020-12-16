@@ -26,7 +26,7 @@ pub trait Day<'a> {
         let time3 = Instant::now();
 
         println!();
-        println!("day{}:", Self::INDEX);
+        println!("day{:02}:", Self::INDEX);
         println!(
             "  parsing: ... (elapsed {}ms)",
             1000.0 * (time1 - time0).as_secs_f32()

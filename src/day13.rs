@@ -52,7 +52,8 @@ impl<'a> Day<'a> for Day13 {
         let big_modulo: usize = congruences.iter().map(|pair| pair.1).product();
         for (remainder, small_modulo) in congruences {
             let zero_for_others = big_modulo / small_modulo;
-            solution += zero_for_others * util::prime_divide_modular(remainder, zero_for_others, small_modulo);
+            solution += zero_for_others
+                * util::prime_divide_modular(remainder, zero_for_others, small_modulo);
         }
         solution % big_modulo
     }

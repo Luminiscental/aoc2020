@@ -1,8 +1,8 @@
 use crate::day::Day;
 
-pub struct Day1 {}
+pub struct Day01 {}
 
-impl<'a> Day<'a> for Day1 {
+impl<'a> Day<'a> for Day01 {
     type Input1 = Vec<u32>;
     type Input2 = Vec<u32>;
     type Output1 = u32;

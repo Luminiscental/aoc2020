@@ -17,9 +17,9 @@ fn parse_seat(desc: &str) -> Seat {
         .sum()
 }
 
-pub struct Day5 {}
+pub struct Day05 {}
 
-impl<'a> Day<'a> for Day5 {
+impl<'a> Day<'a> for Day05 {
     type Input1 = Vec<Seat>;
     type Input2 = Vec<Seat>;
     type Output1 = usize;

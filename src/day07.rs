@@ -17,9 +17,9 @@ pub struct RuleSet<'a> {
     parent_map: HashMap<&'a str, HashSet<&'a str>>,
 }
 
-pub struct Day7 {}
+pub struct Day07 {}
 
-impl<'a> Day<'a> for Day7 {
+impl<'a> Day<'a> for Day07 {
     type Input1 = RuleSet<'a>;
     type Input2 = RuleSet<'a>;
     type Output1 = usize;

@@ -1,7 +1,7 @@
 use crate::day::Day;
 use std::collections::HashMap;
 
-pub struct Day4 {}
+pub struct Day04 {}
 
 fn validate_number(text: &str, min: usize, max: usize) -> bool {
     text.parse::<usize>()
@@ -81,7 +81,7 @@ impl<'a> Passport<'a> {
     }
 }
 
-impl<'a> Day<'a> for Day4 {
+impl<'a> Day<'a> for Day04 {
     type Input1 = Vec<Passport<'a>>;
     type Input2 = Vec<KeyedPassport<'a>>;
     type Output1 = usize;

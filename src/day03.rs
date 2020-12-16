@@ -32,9 +32,9 @@ impl Grid {
     }
 }
 
-pub struct Day3 {}
+pub struct Day03 {}
 
-impl<'a> Day<'a> for Day3 {
+impl<'a> Day<'a> for Day03 {
     type Input1 = Grid;
     type Input2 = Grid;
     type Output1 = usize;

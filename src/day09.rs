@@ -1,9 +1,9 @@
 use crate::day::Day;
 use std::{cmp::Ordering, collections::HashMap};
 
-pub struct Day9 {}
+pub struct Day09 {}
 
-impl<'a> Day<'a> for Day9 {
+impl<'a> Day<'a> for Day09 {
     type Input1 = Vec<usize>;
     type Input2 = (usize, Vec<usize>);
     type Output1 = usize;

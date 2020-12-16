@@ -29,9 +29,9 @@ impl AlphabetSet {
     }
 }
 
-pub struct Day6 {}
+pub struct Day06 {}
 
-impl<'a> Day<'a> for Day6 {
+impl<'a> Day<'a> for Day06 {
     type Input1 = Vec<Vec<AlphabetSet>>;
     type Input2 = Vec<Vec<AlphabetSet>>;
     type Output1 = u32;

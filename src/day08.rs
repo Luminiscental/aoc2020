@@ -31,9 +31,9 @@ fn run_code(code: &[(&str, i32)]) -> Result<i32, Failure> {
     Ok(acc)
 }
 
-pub struct Day8 {}
+pub struct Day08 {}
 
-impl<'a> Day<'a> for Day8 {
+impl<'a> Day<'a> for Day08 {
     type Input1 = Vec<(&'a str, i32)>;
     type Input2 = (Vec<(&'a str, i32)>, HashSet<i32>);
     type Output1 = i32;
