@@ -89,14 +89,14 @@ impl<'a> Day<'a> for Day16 {
     }
 
     fn solve_part1(input: Self::Input1) -> (Self::Input2, Self::Output1) {
-        let invalid_values: Vec<usize> = input
+        let invalid_values: Vec<_> = input
             .nearby_tickets
             .iter()
             .flat_map(|ticket| ticket.field_values.iter())
             .filter(|&&value| !input.fields.values().any(|field| field.is_valid(value)))
             .copied()
             .collect();
-        let valid_tickets: Vec<ObfuscatedTicket> = input
+        let valid_tickets: Vec<_> = input
             .nearby_tickets
             .iter()
             .filter(|ticket| {
