@@ -11,6 +11,19 @@ macro_rules! map(
      };
 );
 
+#[macro_export]
+macro_rules! set(
+    { $($value:expr),+ } => {
+        {
+            let mut m = ::std::collections::HashSet::new();
+            $(
+                m.insert($value);
+            )+
+            m
+        }
+     };
+);
+
 pub fn exp_modular(base: usize, exp: usize, modulo: usize) -> usize {
     match exp {
         0 => 1,
