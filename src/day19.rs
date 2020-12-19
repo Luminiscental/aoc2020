@@ -1,5 +1,5 @@
 use crate::{day::Day, set};
-use itertools::{iproduct, Itertools};
+use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 
 #[derive(PartialEq, Debug)]
@@ -37,28 +37,26 @@ fn build_languages(
     let lang = match &rules[&root] {
         Rule::TerminalA => set! {"a".to_owned()},
         Rule::TerminalB => set! {"b".to_owned()},
-        Rule::Alternatives(disj) => disj
-            .iter()
-            .map(|conj| {
-                conj.iter()
-                    .map(|idx| {
-                        languages.get(idx).cloned().unwrap_or_else(|| {
-                            build_languages(*idx, rules, languages);
-                            languages[idx].clone()
-                        })
-                    })
-                    .fold1(|lang, more| {
-                        iproduct!(lang.iter(), more.iter())
-                            .map(|pair| format!("{}{}", pair.0, pair.1))
-                            .collect()
-                    })
-                    .unwrap()
-            })
-            .fold1(|mut lang, more| {
-                lang.extend(more);
-                lang
-            })
-            .unwrap(),
+        Rule::Alternatives(disj) => {
+            disj.iter().for_each(|conj| {
+                conj.iter().for_each(|idx| {
+                    if !languages.contains_key(idx) {
+                        build_languages(*idx, rules, languages);
+                    }
+                })
+            });
+            disj.iter()
+                .map(|conj| {
+                    conj.iter()
+                        .map(|idx| languages[idx].iter())
+                        .multi_cartesian_product()
+                        .map(|vec| vec.into_iter().join(""))
+                })
+                .fold(HashSet::new(), |mut lang, more| {
+                    lang.extend(more);
+                    lang
+                })
+        }
     };
     languages.insert(root, lang);
 }
