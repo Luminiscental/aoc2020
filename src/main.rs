@@ -23,6 +23,7 @@ mod day16;
 mod day17;
 mod day18;
 mod day19;
+mod day20;
 mod util;
 
 use day::Day;
@@ -45,6 +46,7 @@ use day16::Day16;
 use day17::Day17;
 use day18::Day18;
 use day19::Day19;
+use day20::Day20;
 
 macro_rules! solve {
     ($day:ident) => {
@@ -75,5 +77,6 @@ fn main() -> io::Result<()> {
     solve!(Day17);
     solve!(Day18);
     solve!(Day19);
+    solve!(Day20);
     Ok(())
 }
