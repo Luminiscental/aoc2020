@@ -1,5 +1,13 @@
 use std::cmp::Ord;
 
+pub trait Ignore {
+    fn ignore(self);
+}
+
+impl<T> Ignore for T {
+    fn ignore(self) {}
+}
+
 #[macro_export]
 macro_rules! map(
     { $($key:expr => $value:expr),+ } => {
