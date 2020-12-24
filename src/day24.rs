@@ -23,6 +23,7 @@ impl<'a> Day<'a> for Day24 {
     const INDEX: usize = 24;
 
     fn parse(raw_input: &'a str) -> Self::Input1 {
+        let directions = directions();
         raw_input
             .lines()
             .map(|line| line.trim())
@@ -30,7 +31,7 @@ impl<'a> Day<'a> for Day24 {
             .map(|mut line| {
                 let mut cursor = (0, 0, 0);
                 while !line.is_empty() {
-                    for (name, direction) in directions().iter() {
+                    for (name, direction) in directions.iter() {
                         if line.starts_with(name) {
                             cursor.0 += direction.0;
                             cursor.1 += direction.1;
@@ -59,24 +60,27 @@ impl<'a> Day<'a> for Day24 {
     fn solve_part2(input: Self::Input2) -> Self::Output2 {
         let mut grid = input;
         let mut neighbour_counts = HashMap::new();
+        let mut to_add = Vec::new();
+        let directions: Vec<_> = directions().values().copied().collect();
         for _ in 1..=100 {
-            for tile in grid.iter().copied() {
-                for neighbour in directions()
-                    .values()
+            for tile in grid.iter() {
+                for neighbour in directions
+                    .iter()
                     .map(|dir| (tile.0 + dir.0, tile.1 + dir.1, tile.2 + dir.2))
                 {
                     *neighbour_counts.entry(neighbour).or_insert(0) += 1;
                 }
             }
-            let to_add: Vec<(i32, i32, i32)> = neighbour_counts
-                .iter()
-                .filter(|pair| !grid.contains(pair.0) && *pair.1 == 2)
-                .map(|pair| pair.0)
-                .copied()
-                .collect();
+            to_add.extend(
+                neighbour_counts
+                    .iter()
+                    .filter(|pair| !grid.contains(pair.0) && *pair.1 == 2)
+                    .map(|pair| pair.0),
+            );
             grid.retain(|tile| [1, 2].contains(neighbour_counts.get(tile).unwrap_or(&0)));
-            grid.extend(to_add);
+            grid.extend(&to_add);
             neighbour_counts.clear();
+            to_add.clear();
         }
         grid.len()
     }
