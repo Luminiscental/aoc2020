@@ -1,45 +1,61 @@
-use crate::{day::Day, map};
-use std::collections::{HashMap, HashSet};
+use crate::{
+    day::Day,
+    util::{self, Coord},
+};
+use std::collections::HashSet;
 
-fn directions() -> HashMap<&'static str, (i32, i32, i32)> {
-    map! {
-        "ne" => (0, 1, -1),
-        "nw" => (1, 0, -1),
-        "se" => (-1, 0, 1),
-        "sw" => (0, -1, 1),
-        "e" => (-1, 1, 0),
-        "w" => (1, -1, 0)
+// invariant: x + y + z == 0
+#[derive(PartialEq, Eq, Clone, Copy, Hash)]
+pub struct HexCoord(i32, i32, i32);
+
+impl Coord for HexCoord {
+    fn for_neighbours<F: FnMut(Self)>(&self, mut f: F) {
+        f(Self(self.0, self.1 + 1, self.2 - 1));
+        f(Self(self.0, self.1 - 1, self.2 + 1));
+        f(Self(self.0 - 1, self.1 + 1, self.2));
+        f(Self(self.0 - 1, self.1, self.2 + 1));
+        f(Self(self.0 + 1, self.1 - 1, self.2));
+        f(Self(self.0 + 1, self.1, self.2 - 1));
     }
 }
 
 pub struct Day24 {}
 
 impl<'a> Day<'a> for Day24 {
-    type Input1 = Vec<(i32, i32, i32)>;
-    type Input2 = HashSet<(i32, i32, i32)>;
+    type Input1 = Vec<HexCoord>;
+    type Input2 = HashSet<HexCoord>;
     type Output1 = usize;
     type Output2 = usize;
 
     const INDEX: usize = 24;
 
     fn parse(raw_input: &'a str) -> Self::Input1 {
-        let directions = directions();
         raw_input
             .lines()
             .map(|line| line.trim())
             .filter(|line| !line.is_empty())
             .map(|mut line| {
-                let mut cursor = (0, 0, 0);
+                let mut cursor = HexCoord(0, 0, 0);
                 while !line.is_empty() {
-                    for (name, direction) in directions.iter() {
-                        if line.starts_with(name) {
-                            cursor.0 += direction.0;
-                            cursor.1 += direction.1;
-                            cursor.2 += direction.2;
-                            line = &line[name.len()..];
-                            break;
-                        }
-                    }
+                    let (skip, dir) = match &line[0..1] {
+                        "n" => match &line[1..2] {
+                            "e" => (2, (0, 1, -1)),
+                            "w" => (2, (1, 0, -1)),
+                            _ => unreachable!(),
+                        },
+                        "s" => match &line[1..2] {
+                            "e" => (2, (-1, 0, 1)),
+                            "w" => (2, (0, -1, 1)),
+                            _ => unreachable!(),
+                        },
+                        "e" => (1, (-1, 1, 0)),
+                        "w" => (1, (1, -1, 0)),
+                        _ => unreachable!(),
+                    };
+                    cursor.0 += dir.0;
+                    cursor.1 += dir.1;
+                    cursor.2 += dir.2;
+                    line = &line[skip..];
                 }
                 cursor
             })
@@ -59,28 +75,8 @@ impl<'a> Day<'a> for Day24 {
 
     fn solve_part2(input: Self::Input2) -> Self::Output2 {
         let mut grid = input;
-        let mut neighbour_counts = HashMap::new();
-        let mut to_add = Vec::new();
-        let directions: Vec<_> = directions().values().copied().collect();
         for _ in 1..=100 {
-            for tile in grid.iter() {
-                for neighbour in directions
-                    .iter()
-                    .map(|dir| (tile.0 + dir.0, tile.1 + dir.1, tile.2 + dir.2))
-                {
-                    *neighbour_counts.entry(neighbour).or_insert(0) += 1;
-                }
-            }
-            to_add.extend(
-                neighbour_counts
-                    .iter()
-                    .filter(|pair| !grid.contains(pair.0) && *pair.1 == 2)
-                    .map(|pair| pair.0),
-            );
-            grid.retain(|tile| [1, 2].contains(neighbour_counts.get(tile).unwrap_or(&0)));
-            grid.extend(&to_add);
-            neighbour_counts.clear();
-            to_add.clear();
+            util::step_cellular_automata(&mut grid, |n| n == 2, |n| (n != 1 && n != 2));
         }
         grid.len()
     }

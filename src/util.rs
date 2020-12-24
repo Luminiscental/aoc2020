@@ -1,4 +1,8 @@
-use std::cmp::Ord;
+use std::{
+    cmp::Ord,
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 
 pub trait Ignore {
     fn ignore(self);
@@ -79,4 +83,168 @@ where
         (x_min.unwrap(), x_max.unwrap()),
         (y_min.unwrap(), y_max.unwrap()),
     )
+}
+
+pub trait Coord: Sized {
+    fn for_neighbours<F: FnMut(Self)>(&self, f: F);
+}
+
+pub fn step_cellular_automata<T, BirthFn, DeathFn>(
+    alive: &mut HashSet<T>,
+    birth: BirthFn,
+    death: DeathFn,
+) where
+    T: Coord + Eq + Hash + Copy,
+    BirthFn: Fn(usize) -> bool,
+    DeathFn: Fn(usize) -> bool,
+{
+    let mut neighbour_counts: HashMap<T, usize> = HashMap::new();
+    for cell in alive.iter() {
+        cell.for_neighbours(|neighbour| {
+            *neighbour_counts.entry(neighbour).or_insert(0) += 1;
+        });
+    }
+    let to_add: Vec<T> = neighbour_counts
+        .iter()
+        .filter(|pair| !alive.contains(pair.0))
+        .filter(|pair| birth(*pair.1))
+        .map(|pair| pair.0)
+        .copied()
+        .collect();
+    alive.retain(|cell| !death(neighbour_counts.get(cell).copied().unwrap_or(0)));
+    alive.extend(to_add);
+}
+
+#[derive(PartialEq, Eq, Clone, Copy, Hash)]
+pub struct Coord3DWithDiagonals(pub i32, pub i32, pub i32);
+
+impl Coord for Coord3DWithDiagonals {
+    fn for_neighbours<F: FnMut(Self)>(&self, mut f: F) {
+        for &neighbour in [
+            Self(self.0 - 1, self.1 - 1, self.2 - 1),
+            Self(self.0 - 1, self.1 - 1, self.2),
+            Self(self.0 - 1, self.1 - 1, self.2 + 1),
+            Self(self.0 - 1, self.1, self.2 - 1),
+            Self(self.0 - 1, self.1, self.2),
+            Self(self.0 - 1, self.1, self.2 + 1),
+            Self(self.0 - 1, self.1 + 1, self.2 - 1),
+            Self(self.0 - 1, self.1 + 1, self.2),
+            Self(self.0 - 1, self.1 + 1, self.2 + 1),
+            Self(self.0, self.1 - 1, self.2 - 1),
+            Self(self.0, self.1 - 1, self.2),
+            Self(self.0, self.1 - 1, self.2 + 1),
+            Self(self.0, self.1, self.2 - 1),
+            Self(self.0, self.1, self.2 + 1),
+            Self(self.0, self.1 + 1, self.2 - 1),
+            Self(self.0, self.1 + 1, self.2),
+            Self(self.0, self.1 + 1, self.2 + 1),
+            Self(self.0 + 1, self.1 - 1, self.2 - 1),
+            Self(self.0 + 1, self.1 - 1, self.2),
+            Self(self.0 + 1, self.1 - 1, self.2 + 1),
+            Self(self.0 + 1, self.1, self.2 - 1),
+            Self(self.0 + 1, self.1, self.2),
+            Self(self.0 + 1, self.1, self.2 + 1),
+            Self(self.0 + 1, self.1 + 1, self.2 - 1),
+            Self(self.0 + 1, self.1 + 1, self.2),
+            Self(self.0 + 1, self.1 + 1, self.2 + 1),
+        ]
+        .iter()
+        {
+            f(neighbour);
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, Clone, Copy, Hash)]
+pub struct Coord4DWithDiagonals(pub i32, pub i32, pub i32, pub i32);
+
+impl Coord for Coord4DWithDiagonals {
+    fn for_neighbours<F: FnMut(Self)>(&self, mut f: F) {
+        for &neighbour in [
+            Self(self.0 - 1, self.1 - 1, self.2 - 1, self.3 - 1),
+            Self(self.0 - 1, self.1 - 1, self.2 - 1, self.3),
+            Self(self.0 - 1, self.1 - 1, self.2 - 1, self.3 + 1),
+            Self(self.0 - 1, self.1 - 1, self.2, self.3 - 1),
+            Self(self.0 - 1, self.1 - 1, self.2, self.3),
+            Self(self.0 - 1, self.1 - 1, self.2, self.3 + 1),
+            Self(self.0 - 1, self.1 - 1, self.2 + 1, self.3 - 1),
+            Self(self.0 - 1, self.1 - 1, self.2 + 1, self.3),
+            Self(self.0 - 1, self.1 - 1, self.2 + 1, self.3 + 1),
+            Self(self.0 - 1, self.1, self.2 - 1, self.3 - 1),
+            Self(self.0 - 1, self.1, self.2 - 1, self.3),
+            Self(self.0 - 1, self.1, self.2 - 1, self.3 + 1),
+            Self(self.0 - 1, self.1, self.2, self.3 - 1),
+            Self(self.0 - 1, self.1, self.2, self.3),
+            Self(self.0 - 1, self.1, self.2, self.3 + 1),
+            Self(self.0 - 1, self.1, self.2 + 1, self.3 - 1),
+            Self(self.0 - 1, self.1, self.2 + 1, self.3),
+            Self(self.0 - 1, self.1, self.2 + 1, self.3 + 1),
+            Self(self.0 - 1, self.1 + 1, self.2 - 1, self.3 - 1),
+            Self(self.0 - 1, self.1 + 1, self.2 - 1, self.3),
+            Self(self.0 - 1, self.1 + 1, self.2 - 1, self.3 + 1),
+            Self(self.0 - 1, self.1 + 1, self.2, self.3 - 1),
+            Self(self.0 - 1, self.1 + 1, self.2, self.3),
+            Self(self.0 - 1, self.1 + 1, self.2, self.3 + 1),
+            Self(self.0 - 1, self.1 + 1, self.2 + 1, self.3 - 1),
+            Self(self.0 - 1, self.1 + 1, self.2 + 1, self.3),
+            Self(self.0 - 1, self.1 + 1, self.2 + 1, self.3 + 1),
+            Self(self.0, self.1 - 1, self.2 - 1, self.3 - 1),
+            Self(self.0, self.1 - 1, self.2 - 1, self.3),
+            Self(self.0, self.1 - 1, self.2 - 1, self.3 + 1),
+            Self(self.0, self.1 - 1, self.2, self.3 - 1),
+            Self(self.0, self.1 - 1, self.2, self.3),
+            Self(self.0, self.1 - 1, self.2, self.3 + 1),
+            Self(self.0, self.1 - 1, self.2 + 1, self.3 - 1),
+            Self(self.0, self.1 - 1, self.2 + 1, self.3),
+            Self(self.0, self.1 - 1, self.2 + 1, self.3 + 1),
+            Self(self.0, self.1, self.2 - 1, self.3 - 1),
+            Self(self.0, self.1, self.2 - 1, self.3),
+            Self(self.0, self.1, self.2 - 1, self.3 + 1),
+            Self(self.0, self.1, self.2, self.3 - 1),
+            Self(self.0, self.1, self.2, self.3 + 1),
+            Self(self.0, self.1, self.2 + 1, self.3 - 1),
+            Self(self.0, self.1, self.2 + 1, self.3),
+            Self(self.0, self.1, self.2 + 1, self.3 + 1),
+            Self(self.0, self.1 + 1, self.2 - 1, self.3 - 1),
+            Self(self.0, self.1 + 1, self.2 - 1, self.3),
+            Self(self.0, self.1 + 1, self.2 - 1, self.3 + 1),
+            Self(self.0, self.1 + 1, self.2, self.3 - 1),
+            Self(self.0, self.1 + 1, self.2, self.3),
+            Self(self.0, self.1 + 1, self.2, self.3 + 1),
+            Self(self.0, self.1 + 1, self.2 + 1, self.3 - 1),
+            Self(self.0, self.1 + 1, self.2 + 1, self.3),
+            Self(self.0, self.1 + 1, self.2 + 1, self.3 + 1),
+            Self(self.0 + 1, self.1 - 1, self.2 - 1, self.3 - 1),
+            Self(self.0 + 1, self.1 - 1, self.2 - 1, self.3),
+            Self(self.0 + 1, self.1 - 1, self.2 - 1, self.3 + 1),
+            Self(self.0 + 1, self.1 - 1, self.2, self.3 - 1),
+            Self(self.0 + 1, self.1 - 1, self.2, self.3),
+            Self(self.0 + 1, self.1 - 1, self.2, self.3 + 1),
+            Self(self.0 + 1, self.1 - 1, self.2 + 1, self.3 - 1),
+            Self(self.0 + 1, self.1 - 1, self.2 + 1, self.3),
+            Self(self.0 + 1, self.1 - 1, self.2 + 1, self.3 + 1),
+            Self(self.0 + 1, self.1, self.2 - 1, self.3 - 1),
+            Self(self.0 + 1, self.1, self.2 - 1, self.3),
+            Self(self.0 + 1, self.1, self.2 - 1, self.3 + 1),
+            Self(self.0 + 1, self.1, self.2, self.3 - 1),
+            Self(self.0 + 1, self.1, self.2, self.3),
+            Self(self.0 + 1, self.1, self.2, self.3 + 1),
+            Self(self.0 + 1, self.1, self.2 + 1, self.3 - 1),
+            Self(self.0 + 1, self.1, self.2 + 1, self.3),
+            Self(self.0 + 1, self.1, self.2 + 1, self.3 + 1),
+            Self(self.0 + 1, self.1 + 1, self.2 - 1, self.3 - 1),
+            Self(self.0 + 1, self.1 + 1, self.2 - 1, self.3),
+            Self(self.0 + 1, self.1 + 1, self.2 - 1, self.3 + 1),
+            Self(self.0 + 1, self.1 + 1, self.2, self.3 - 1),
+            Self(self.0 + 1, self.1 + 1, self.2, self.3),
+            Self(self.0 + 1, self.1 + 1, self.2, self.3 + 1),
+            Self(self.0 + 1, self.1 + 1, self.2 + 1, self.3 - 1),
+            Self(self.0 + 1, self.1 + 1, self.2 + 1, self.3),
+            Self(self.0 + 1, self.1 + 1, self.2 + 1, self.3 + 1),
+        ]
+        .iter()
+        {
+            f(neighbour);
+        }
+    }
 }

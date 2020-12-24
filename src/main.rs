@@ -1,4 +1,5 @@
 use std::{
+    env,
     fs::File,
     io::{self, Read},
 };
@@ -57,38 +58,45 @@ use day23::Day23;
 use day24::Day24;
 
 macro_rules! solve {
-    ($day:ident) => {
+    ($day:ident) => {{
         let mut input_file = File::open(format!("res/day{}.in", $day::INDEX))?;
         let mut input_string = String::new();
         input_file.read_to_string(&mut input_string)?;
         $day::solve_and_print(&input_string);
-    };
+    }};
 }
 
 fn main() -> io::Result<()> {
-    solve!(Day01);
-    solve!(Day02);
-    solve!(Day03);
-    solve!(Day04);
-    solve!(Day05);
-    solve!(Day06);
-    solve!(Day07);
-    solve!(Day08);
-    solve!(Day09);
-    solve!(Day10);
-    solve!(Day11);
-    solve!(Day12);
-    solve!(Day13);
-    solve!(Day14);
-    solve!(Day15);
-    solve!(Day16);
-    solve!(Day17);
-    solve!(Day18);
-    solve!(Day19);
-    solve!(Day20);
-    solve!(Day21);
-    solve!(Day22);
-    solve!(Day23);
-    solve!(Day24);
+    match env::args().skip(1).next() {
+        None => eprintln!("expected an argument to choose which day to solve"),
+        Some(day) => match day.parse::<usize>() {
+            Err(err) => eprintln!("unrecognized day \"{}\": {}", day, err),
+            Ok(1) => solve!(Day01),
+            Ok(2) => solve!(Day02),
+            Ok(3) => solve!(Day03),
+            Ok(4) => solve!(Day04),
+            Ok(5) => solve!(Day05),
+            Ok(6) => solve!(Day06),
+            Ok(7) => solve!(Day07),
+            Ok(8) => solve!(Day08),
+            Ok(9) => solve!(Day09),
+            Ok(10) => solve!(Day10),
+            Ok(11) => solve!(Day11),
+            Ok(12) => solve!(Day12),
+            Ok(13) => solve!(Day13),
+            Ok(14) => solve!(Day14),
+            Ok(15) => solve!(Day15),
+            Ok(16) => solve!(Day16),
+            Ok(17) => solve!(Day17),
+            Ok(18) => solve!(Day18),
+            Ok(19) => solve!(Day19),
+            Ok(20) => solve!(Day20),
+            Ok(21) => solve!(Day21),
+            Ok(22) => solve!(Day22),
+            Ok(23) => solve!(Day23),
+            Ok(24) => solve!(Day24),
+            _ => todo!(),
+        },
+    }
     Ok(())
 }
